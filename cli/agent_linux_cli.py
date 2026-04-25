@@ -143,9 +143,10 @@ def cmd_install() -> None:
     _ok("Directories created")
 
     # 6. Install package into the venv
+    # Install from GitHub — the CLI runs as a standalone script so no local source is available
     _info("Installing agent-linux package…")
-    pkg_src = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    _run([venv_python, "-m", "pip", "install", "-q", pkg_src])
+    pkg_url = "https://github.com/theOSCARP2/agent-linux/archive/refs/heads/master.tar.gz"
+    _run([venv_python, "-m", "pip", "install", "-q", pkg_url])
     _ok("Package installed")
 
     # 7. Install CLI symlink
