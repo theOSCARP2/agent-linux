@@ -98,6 +98,8 @@ def cmd_install() -> None:
     venv_dir = os.path.join(INSTALL_DIR, "venv")
     venv_python = os.path.join(venv_dir, "bin", "python3")
     if not os.path.exists(venv_python):
+        _info("Installing python3-venv…")
+        _run(["apt-get", "install", "-y", "-q", "python3-venv"])
         _info(f"Creating virtualenv at {venv_dir}…")
         _run([sys.executable, "-m", "venv", venv_dir])
         _ok("Virtualenv created")
