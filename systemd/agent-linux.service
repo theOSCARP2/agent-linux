@@ -1,0 +1,32 @@
+[Unit]
+Description=agent-linux AI server administration daemon
+Documentation=https://github.com/theOSCARP2/agent-linux
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=agent-linux
+Group=agent-linux
+ExecStart=/usr/bin/python3 -m agent_linux.daemon
+Restart=on-failure
+RestartSec=5
+
+# Runtime directory (creates /run/agent-linux automatically)
+RuntimeDirectory=agent-linux
+RuntimeDirectoryMode=0755
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=agent-linux
+
+# Hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/var/log/agent-linux /etc/agent-linux /run/agent-linux
+ProtectHome=yes
+
+[Install]
+WantedBy=multi-user.target

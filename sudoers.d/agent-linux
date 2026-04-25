@@ -1,0 +1,17 @@
+# agent-linux sudoers rules
+# Restrict the agent-linux service account to specific commands only
+
+Defaults:agent-linux !requiretty
+
+agent-linux ALL=(root) NOPASSWD: \
+    /sbin/iptables *, \
+    /sbin/ip6tables *, \
+    /usr/sbin/nft *, \
+    /bin/systemctl status *, \
+    /bin/systemctl start *, \
+    /bin/systemctl stop *, \
+    /bin/systemctl restart *, \
+    /bin/systemctl reload *, \
+    /usr/sbin/useradd *, \
+    /usr/sbin/userdel *, \
+    /usr/bin/passwd *

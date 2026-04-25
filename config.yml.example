@@ -1,0 +1,22 @@
+anthropic_api_key: ""
+
+monitor:
+  interval: 60
+  cpu_threshold: 85
+  ram_threshold: 90
+  disk_threshold: 85
+
+thresholds:
+  docker_restart_alert: 5
+
+allowed_commands:
+  - iptables
+  - nft
+  - systemctl
+  - useradd
+  - userdel
+  - passwd
+  - docker
+  - journalctl
+  - ss
+  - ip
