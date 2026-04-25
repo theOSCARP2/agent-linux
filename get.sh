@@ -22,6 +22,12 @@ fi
 
 echo "→ Python $PY_VER detected"
 
+# Ensure pip is available
+if ! python3 -m pip --version &>/dev/null 2>&1; then
+    echo "→ Installing pip…"
+    apt-get update -qq && apt-get install -y -q python3-pip
+fi
+
 # Download CLI
 echo "→ Downloading agent-linux CLI…"
 curl -fsSL "$REPO/cli/agent_linux_cli.py" -o "$BIN"
