@@ -97,15 +97,19 @@ def cmd_install() -> None:
     # 2. Create virtualenv at INSTALL_DIR to isolate from system packages
     venv_dir = os.path.join(INSTALL_DIR, "venv")
     venv_python = os.path.join(venv_dir, "bin", "python3")
-    if not os.path.exists(venv_python):
+    venv_pip = os.path.join(venv_dir, "bin", "pip")
+    venv_ok = os.path.exists(venv_python) and os.path.exists(venv_pip)
+    if not venv_ok:
+        # Remove broken venv if it exists
+        if os.path.exists(venv_dir):
+            shutil.rmtree(venv_dir)
         _info("Installing python3-venv…")
         _run(["apt-get", "install", "-y", "-q", "python3-venv"])
         _info(f"Creating virtualenv at {venv_dir}…")
-        _run([sys.executable, "-m", "venv", "--copies", "--upgrade-deps", venv_dir])
-        # Ensure pip is present inside the venv
-        venv_pip = os.path.join(venv_dir, "bin", "pip")
-        if not os.path.exists(venv_pip):
-            _run([venv_python, "-m", "ensurepip", "--upgrade"])
+        _run([sys.executable, "-m", "venv", venv_dir])
+        # Bootstrap pip inside the venv
+        _run([venv_python, "-m", "ensurepip", "--upgrade"])
+        _run([venv_python, "-m", "pip", "install", "-q", "--upgrade", "pip"])
         _ok("Virtualenv created")
 
     # 3. pip packages inside the venv
