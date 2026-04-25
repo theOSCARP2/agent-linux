@@ -101,7 +101,11 @@ def cmd_install() -> None:
         _info("Installing python3-venv…")
         _run(["apt-get", "install", "-y", "-q", "python3-venv"])
         _info(f"Creating virtualenv at {venv_dir}…")
-        _run([sys.executable, "-m", "venv", venv_dir])
+        _run([sys.executable, "-m", "venv", "--copies", "--upgrade-deps", venv_dir])
+        # Ensure pip is present inside the venv
+        venv_pip = os.path.join(venv_dir, "bin", "pip")
+        if not os.path.exists(venv_pip):
+            _run([venv_python, "-m", "ensurepip", "--upgrade"])
         _ok("Virtualenv created")
 
     # 3. pip packages inside the venv
