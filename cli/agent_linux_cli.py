@@ -94,13 +94,13 @@ def cmd_install() -> None:
         sys.exit(1)
     _ok(f"Python {sys.version.split()[0]}")
 
-    # 2. Ensure pip is available
+    # 2. Ensure pip is available (use ensurepip — no apt needed)
     result = subprocess.run([sys.executable, "-m", "pip", "--version"],
                             capture_output=True)
     if result.returncode != 0:
-        _info("pip not found — installing via apt…")
-        _run(["apt-get", "install", "-y", "-q", "python3-pip"])
-        _ok("pip installed")
+        _info("pip not found — bootstrapping via ensurepip…")
+        _run([sys.executable, "-m", "ensurepip", "--upgrade"])
+        _ok("pip bootstrapped")
 
     # 3. pip packages
     _info("Installing Python dependencies…")

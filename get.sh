@@ -22,10 +22,10 @@ fi
 
 echo "→ Python $PY_VER detected"
 
-# Ensure pip is available
+# Ensure pip is available (ensurepip is built into Python — no apt needed)
 if ! python3 -m pip --version &>/dev/null 2>&1; then
-    echo "→ Installing pip…"
-    apt-get update -qq && apt-get install -y -q python3-pip
+    echo "→ Bootstrapping pip via ensurepip…"
+    python3 -m ensurepip --upgrade
 fi
 
 # Download CLI
