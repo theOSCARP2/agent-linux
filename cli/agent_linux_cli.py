@@ -28,6 +28,17 @@ except ImportError:
 
 VERSION = "1.0.0"
 
+VENV_DIR = "/opt/agent-linux/venv"
+
+# Make agent_linux package importable from the venv
+_venv_site = os.path.join(
+    VENV_DIR, "lib",
+    f"python{sys.version_info.major}.{sys.version_info.minor}",
+    "site-packages",
+)
+if _venv_site not in sys.path:
+    sys.path.insert(0, _venv_site)
+
 SOCKET_PATH = "/run/agent-linux/agent.sock"
 CONFIG_DIR = "/etc/agent-linux"
 CONFIG_PATH = f"{CONFIG_DIR}/config.yml"
