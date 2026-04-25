@@ -129,23 +129,31 @@ def cmd_install() -> None:
           "anthropic", "psutil", "docker", "rich", "pyyaml"])
     _ok("Dependencies installed")
 
-    # 3. Create system user
+    # 3. Create group if missing
+    try:
+        grp.getgrnam(SYSTEM_USER)
+        _ok(f"Group '{SYSTEM_USER}' already exists")
+    except KeyError:
+        _run(["groupadd", "--system", SYSTEM_USER])
+        _ok(f"Group '{SYSTEM_USER}' created")
+
+    # 4. Create system user if missing
     try:
         pwd.getpwnam(SYSTEM_USER)
         _ok(f"User '{SYSTEM_USER}' already exists")
     except KeyError:
         _info(f"Creating system user '{SYSTEM_USER}'…")
-        _run(["useradd", "--system", "--no-create-home", "--shell", "/usr/sbin/nologin",
-              "--groups", "docker", SYSTEM_USER], check=False)
-        _run(["useradd", "--system", "--no-create-home", "--shell", "/usr/sbin/nologin",
-              SYSTEM_USER], check=False)
+        cmd = ["useradd", "--system", "--no-create-home",
+               "--shell", "/usr/sbin/nologin",
+               "--gid", SYSTEM_USER, SYSTEM_USER]
+        _run(cmd)
+        # Add to docker group if it exists
+        try:
+            grp.getgrnam("docker")
+            _run(["usermod", "-aG", "docker", SYSTEM_USER], check=False)
+        except KeyError:
+            pass
         _ok(f"User '{SYSTEM_USER}' created")
-
-    # 4. Create group if missing
-    try:
-        grp.getgrnam(SYSTEM_USER)
-    except KeyError:
-        _run(["groupadd", SYSTEM_USER], check=False)
 
     # 5. Directories
     for d in [CONFIG_DIR, LOG_DIR, "/run/agent-linux", INSTALL_DIR]:
