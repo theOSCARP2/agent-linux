@@ -2,7 +2,7 @@
 # Bootstrap script — downloads and installs the agent-linux CLI
 set -euo pipefail
 
-REPO="https://raw.githubusercontent.com/theOSCARP2/agent-linux/main"
+REPO="https://raw.githubusercontent.com/theOSCARP2/agent-linux/master"
 BIN="/usr/local/bin/agent-linux"
 
 # Check Python version

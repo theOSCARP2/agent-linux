@@ -5,7 +5,7 @@ AI-powered Linux server administration agent using Claude (Anthropic).
 ## Quick start
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/theOSCARP2/agent-linux/main/get.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/theOSCARP2/agent-linux/master/get.sh | sudo bash
 sudo agent-linux install
 ```
 

@@ -10,7 +10,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 GITHUB_RELEASES_API = "https://api.github.com/repos/theOSCARP2/agent-linux/releases/latest"
-GITHUB_RAW_BASE = "https://raw.githubusercontent.com/theOSCARP2/agent-linux"
+GITHUB_RAW_BASE = "https://raw.githubusercontent.com/theOSCARP2/agent-linux/master"
 
 
 def get_latest_version(timeout: int = 10) -> Optional[str]:
