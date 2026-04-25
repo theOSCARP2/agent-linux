@@ -26,7 +26,7 @@ except ImportError:
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-VERSION = "1.0.3"
+VERSION = "1.0.4"
 
 VENV_DIR = "/opt/agent-linux/venv"
 

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="agent-linux",
-    version="1.0.3",  # managed by bump2version
+    version="1.0.4",  # managed by bump2version
     description="AI-powered Linux server administration agent",
     packages=find_packages(),
     python_requires=">=3.10",
