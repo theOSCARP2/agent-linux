@@ -89,7 +89,7 @@ def _recv_all(conn: socket.socket, bufsize: int = 65536) -> bytes:
     return b"".join(chunks).strip()
 
 
-def send_request(payload: dict, socket_path: str = SOCKET_PATH, timeout: int = 120) -> dict:
+def send_request(payload: dict, socket_path: str = SOCKET_PATH, timeout: int = 300) -> dict:
     """Send a request to the daemon and return its response."""
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     sock.settimeout(timeout)
