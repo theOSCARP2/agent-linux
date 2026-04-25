@@ -60,8 +60,10 @@ def perform_update(current_version: str) -> dict:
 
     try:
         package_url = f"https://github.com/theOSCARP2/agent-linux/archive/refs/tags/v{latest}.tar.gz"
+        venv_pip = "/opt/agent-linux/venv/bin/pip"
+        pip_exe = [venv_pip] if os.path.exists(venv_pip) else [sys.executable, "-m", "pip"]
         result = subprocess.run(
-            [sys.executable, "-m", "pip", "install", "--upgrade", "--quiet", package_url],
+            pip_exe + ["install", "--upgrade", "--quiet", package_url],
             capture_output=True,
             text=True,
             timeout=120,

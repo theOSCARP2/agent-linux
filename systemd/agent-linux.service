@@ -8,7 +8,7 @@ Wants=docker.service
 Type=simple
 User=agent-linux
 Group=agent-linux
-ExecStart=/usr/bin/python3 -m agent_linux.daemon
+ExecStart=/opt/agent-linux/venv/bin/python3 -m agent_linux.daemon
 Restart=on-failure
 RestartSec=5
 

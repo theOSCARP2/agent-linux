@@ -94,17 +94,17 @@ def cmd_install() -> None:
         sys.exit(1)
     _ok(f"Python {sys.version.split()[0]}")
 
-    # 2. Ensure pip is available (use ensurepip — no apt needed)
-    result = subprocess.run([sys.executable, "-m", "pip", "--version"],
-                            capture_output=True)
-    if result.returncode != 0:
-        _info("pip not found — bootstrapping via ensurepip…")
-        _run([sys.executable, "-m", "ensurepip", "--upgrade"])
-        _ok("pip bootstrapped")
+    # 2. Create virtualenv at INSTALL_DIR to isolate from system packages
+    venv_dir = os.path.join(INSTALL_DIR, "venv")
+    venv_python = os.path.join(venv_dir, "bin", "python3")
+    if not os.path.exists(venv_python):
+        _info(f"Creating virtualenv at {venv_dir}…")
+        _run([sys.executable, "-m", "venv", venv_dir])
+        _ok("Virtualenv created")
 
-    # 3. pip packages
+    # 3. pip packages inside the venv
     _info("Installing Python dependencies…")
-    _run([sys.executable, "-m", "pip", "install", "-q", "--break-system-packages",
+    _run([venv_python, "-m", "pip", "install", "-q",
           "anthropic", "psutil", "docker", "rich", "pyyaml"])
     _ok("Dependencies installed")
 
@@ -132,10 +132,10 @@ def cmd_install() -> None:
     _run(["chown", "-R", f"{SYSTEM_USER}:{SYSTEM_USER}", LOG_DIR, "/run/agent-linux"])
     _ok("Directories created")
 
-    # 6. Install package
+    # 6. Install package into the venv
     _info("Installing agent-linux package…")
     pkg_src = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    _run([sys.executable, "-m", "pip", "install", "-q", pkg_src])
+    _run([venv_python, "-m", "pip", "install", "-q", pkg_src])
     _ok("Package installed")
 
     # 7. Install CLI symlink
@@ -224,7 +224,7 @@ def _write_default_service(dst: str) -> None:
         Type=simple
         User={SYSTEM_USER}
         Group={SYSTEM_USER}
-        ExecStart={sys.executable} -m agent_linux.daemon
+        ExecStart={INSTALL_DIR}/venv/bin/python3 -m agent_linux.daemon
         Restart=on-failure
         RestartSec=5
         RuntimeDirectory=agent-linux
