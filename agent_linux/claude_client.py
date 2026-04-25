@@ -113,6 +113,25 @@ def _detect_docker_services() -> str:
         return "unavailable"
 
 
+def _summarize_snapshots(snapshots: list) -> list:
+    """Reduce snapshots to key metrics only to minimize token usage."""
+    result = []
+    for s in snapshots:
+        result.append({
+            "ts": s.get("timestamp"),
+            "cpu": s.get("cpu", {}).get("percent"),
+            "ram": s.get("ram", {}).get("percent"),
+            "disk": {k: v.get("percent") for k, v in s.get("disk", {}).items()},
+            "docker": [
+                {"name": c["name"], "status": c["status"], "restarts": c.get("restarts", 0)}
+                for c in s.get("docker", [])
+            ],
+            "failed_services": s.get("failed_services", []),
+            "firewall_hash": s.get("firewall_hash"),
+        })
+    return result
+
+
 class ClaudeClient:
     def __init__(self, config: dict):
         api_key = config.get("anthropic_api_key") or os.environ.get("ANTHROPIC_API_KEY", "")
@@ -130,10 +149,10 @@ class ClaudeClient:
         confirm_callback(tool_name, command) -> bool  — called before executing
         any tool that modifies the system. Return False to skip execution.
         """
-        recent = get_recent_events(20)
+        recent = get_recent_events(3)
         monitoring_context = (
-            f"\n\n[Recent monitoring snapshots (last {len(recent)}):\n"
-            + json.dumps(recent, default=str, indent=2)
+            f"\n\n[Latest monitoring snapshot:\n"
+            + json.dumps(_summarize_snapshots(recent), default=str, indent=2)
             + "]"
         ) if recent else ""
 
