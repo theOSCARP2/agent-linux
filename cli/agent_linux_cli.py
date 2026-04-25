@@ -259,6 +259,41 @@ def cmd_remove() -> None:
     _ok("agent-linux removed")
 
 
+def cmd_update() -> None:
+    _require_root()
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+    from agent_linux.updater import check_for_update, perform_update
+
+    _info(f"Current version: {VERSION}")
+    _info("Checking for updates…")
+
+    latest = check_for_update(VERSION)
+    if not latest:
+        _ok(f"Already up to date (v{VERSION}).")
+        return
+
+    _print(
+        f"[bold yellow]New version available: v{latest}[/bold yellow]" if _RICH
+        else f"New version available: v{latest}"
+    )
+    confirm = input(f"Update v{VERSION} → v{latest}? (o/n) ").strip().lower()
+    if confirm not in ("o", "y", "oui", "yes"):
+        _info("Update cancelled.")
+        return
+
+    _info("Installing update…")
+    result = perform_update(VERSION)
+
+    if not result["success"]:
+        _err(result["message"])
+        sys.exit(1)
+
+    _ok(result["message"])
+    _info("Restarting service…")
+    _run(["systemctl", "restart", SERVICE_NAME], check=False)
+    _ok("Service restarted.")
+
+
 def cmd_service(action: str) -> None:
     _require_root()
     _run(["systemctl", action, SERVICE_NAME])
@@ -286,7 +321,11 @@ def cmd_chat() -> None:
         resp = send_request({"type": "status"})
         snapshot = resp.get("snapshot", {})
         alerts = resp.get("alerts", [])
-        _print_banner(snapshot, alerts)
+        _print_banner(
+            snapshot, alerts,
+            current_version=resp.get("current_version", ""),
+            update_available=resp.get("update_available") or "",
+        )
     except Exception as e:
         _warn(f"Could not fetch status: {e}")
 
@@ -331,16 +370,19 @@ def cmd_chat() -> None:
         pass
 
 
-def _print_banner(snapshot: dict, alerts: list) -> None:
+def _print_banner(snapshot: dict, alerts: list, current_version: str = "", update_available: str = "") -> None:
     cpu = snapshot.get("cpu", {}).get("percent", "?")
     ram = snapshot.get("ram", {}).get("percent", "?")
     failed = snapshot.get("failed_services", [])
     docker = snapshot.get("docker", [])
     up = sum(1 for c in docker if c.get("status") == "running")
 
+    ver_str = f"v{current_version}" if current_version else f"v{VERSION}"
     lines = [
-        f"CPU: {cpu}%   RAM: {ram}%   Docker: {up} up",
+        f"agent-linux {ver_str}   CPU: {cpu}%   RAM: {ram}%   Docker: {up} up",
     ]
+    if update_available:
+        lines.append(f"↑ Update available: v{update_available} — run: sudo agent-linux update")
     if alerts:
         lines.append("⚠  " + " | ".join(alerts))
     if failed:
@@ -377,6 +419,8 @@ def main() -> None:
 
     if cmd in ("-v", "--version", "version"):
         print(f"agent-linux {VERSION}")
+    elif cmd == "update":
+        cmd_update()
     elif cmd == "install":
         cmd_install()
     elif cmd == "remove":
@@ -388,7 +432,7 @@ def main() -> None:
     else:
         _err(f"Unknown command: {cmd}")
         print(f"agent-linux {VERSION}")
-        print("Usage: agent-linux [install|remove|start|stop|restart|status|--version]")
+        print("Usage: agent-linux [install|remove|update|start|stop|restart|status|--version]")
         sys.exit(1)
 
 

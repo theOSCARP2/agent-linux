@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `agent-linux update` command — checks GitHub Releases, confirms with user, installs via pip, restarts service
+- Passive update notification: daemon checks for new versions every 24h and logs availability
+- Chat banner now shows current version and update hint when a newer release exists
+
 ## [1.0.0] - 2026-04-25
 
 ### Added
